@@ -12,10 +12,21 @@ const pageController = require('./controllers/pageController');
 const app = express();
 
 //Mongoose DB
-mongoose.connect('mongodb://localhost/pcat-test-db', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+mongoose
+  .connect(
+    'mongodb+srv://havva:rxt8znCtQB2H5OaJ@cluster0.kuko9.mongodb.net/pcat-db?retryWrites=true&w=majority',
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      
+    }
+  )
+  .then(() => {
+    console.log('DB CONNECTED');
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 //TEMPLATE ENGINE
 app.set('view engine', 'ejs');
@@ -31,13 +42,11 @@ app.use(
   })
 );
 
-
 app.get('/', photoController.getAllPhotos);
 app.get('/photos/:id', photoController.getPhoto);
 app.post('/photos', photoController.createPhoto);
 app.put('/photos/:id', photoController.updatePhoto);
 app.delete('/photos/:id', photoController.deletePhoto);
-
 
 app.get('/about', pageController.getAboutPage);
 app.get('/add', pageController.getAddPage);
