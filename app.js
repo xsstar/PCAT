@@ -1,14 +1,56 @@
 const express = require('express');
-const app = express();
-const path = require('path');
+const mongoose = require('mongoose');
+const fileUpload = require('express-fileupload');
+const methodOverride = require('method-override');
 
+const ejs = require('ejs');
+const Photo = require('./models/Photo');
+const { find } = require('./models/Photo');
+const photoController = require('./controllers/photoControllers');
+const pageController = require('./controllers/pageController');
+
+const app = express();
+
+//Mongoose DB
+mongoose.connect('mongodb://localhost/pcat-test-db', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+//TEMPLATE ENGINE
+app.set('view engine', 'ejs');
 
 //MIDDLEWARES
 app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(fileUpload());
+app.use(
+  methodOverride('_method', {
+    methods: ['POST', 'GET'],
+  })
+);
 
-app.get('/', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'temp/index.html'));
-});
+
+app.get('/', photoController.getAllPhotos);
+app.get('/photos/:id', photoController.getPhoto);
+app.post('/photos', photoController.createPhoto);
+app.put('/photos/:id', photoController.updatePhoto);
+app.delete('/photos/:id', photoController.deletePhoto);
+
+
+app.get('/about', pageController.getAboutPage);
+app.get('/add', pageController.getAddPage);
+app.get('/photos/edit/:id', pageController.getEditPage);
+
+// Photo.find({}, (err, data) => {
+//   console.log(data);
+// });
+
+/* app.post('/photos', (req, res) => {
+  console.log(req.body);//add.ejs de verdiğimiz method ve action ile girilen objeyi yakaladık..
+  res.redirect('/');
+}); */
 
 const port = 5000;
 
